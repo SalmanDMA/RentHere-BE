@@ -30,12 +30,30 @@ const findUserById = async (id) => {
 };
 
 const findUserByEmail = async (email) => {
-  console.log(email);
   const user = await Users.findOne({ where: { email } });
   if (!user) {
     throw new NotFoundError(`User dengan email '${email}' tidak ditemukan`);
   }
   return user;
+};
+
+const updateNewPasswordByUser = async ({ email, newPassword, currentPassword }) => {
+  const existingUser = await findUserByEmail(email);
+
+  if (!existingUser) {
+    throw new InvariantError(`User '${email}' not found`);
+  }
+
+  const isPasswordMatch = await bcrypt.compare(currentPassword, existingUser.password);
+
+  if (!isPasswordMatch) {
+    throw new InvariantError('Old password does not match');
+  }
+
+  existingUser.password = await bcrypt.hash(newPassword, 10);
+
+  await existingUser.save();
+  return existingUser;
 };
 
 const createUser = async ({
@@ -86,9 +104,6 @@ const updateUserProfile = async (id, userData) => {
   if (userData.name) {
     existingUser.name = userData.name;
   }
-  if (userData.email) {
-    existingUser.email = userData.email;
-  }
   if (userData.phoneNumber) {
     existingUser.phoneNumber = userData.phoneNumber;
   }
@@ -97,6 +112,9 @@ const updateUserProfile = async (id, userData) => {
   }
   if (userData.profilePicture) {
     existingUser.profilePicture = userData.profilePicture;
+  }
+  if (userData.coverPicture) {
+    existingUser.coverPicture = userData.coverPicture;
   }
   await existingUser.save();
   return existingUser;
@@ -114,6 +132,18 @@ const deleteUser = async (id, userRole) => {
   return existingUser;
 };
 
+const deleteUserByUser = async (id) => {
+  const existingUser = await Users.findOne({ where: { id } });
+  if (!existingUser) {
+    throw new NotFoundError(`User with id '${id}' not found`);
+  }
+  if (existingUser.role === 'ADMIN') {
+    throw new InvariantError("You can't delete this user");
+  }
+  await existingUser.destroy();
+  return existingUser;
+};
+
 module.exports = {
   findLenghtUsers,
   findAllUser,
@@ -122,5 +152,7 @@ module.exports = {
   createUser,
   updateUser,
   updateUserProfile,
+  updateNewPasswordByUser,
   deleteUser,
+  deleteUserByUser,
 };

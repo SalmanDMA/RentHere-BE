@@ -5,8 +5,6 @@ const { Users } = require('../models');
 const signIn = async ({ email, password }) => {
   const user = await Users.findOne({ where: { email } });
 
-  console.log(user);
-
   if (!user) {
     throw new AuthenticationError('Invalid email, User not found');
   }

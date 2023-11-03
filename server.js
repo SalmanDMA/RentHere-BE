@@ -11,6 +11,9 @@ const carsRouter = require('./app/routes/cars');
 const bikesRouter = require('./app/routes/bikes');
 const transactionsRouter = require('./app/routes/transactions');
 const testimonialsRouter = require('./app/routes/testimonials');
+const cloudinaryRouter = require('./app/routes/cloudinary');
+const wishlistRouter = require('./app/routes/wishlist');
+const paymentRouter = require('./app/routes/payment');
 
 const { PORT } = process.env;
 require('dotenv').config();
@@ -32,6 +35,9 @@ app.use('/', carsRouter);
 app.use('/', bikesRouter);
 app.use('/', transactionsRouter);
 app.use('/', testimonialsRouter);
+app.use('/', cloudinaryRouter);
+app.use('/', wishlistRouter);
+app.use('/', paymentRouter);
 
 app.use('/seeders', (req, res) => {
   runSeeders();

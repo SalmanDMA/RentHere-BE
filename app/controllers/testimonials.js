@@ -2,7 +2,11 @@ const asyncHandler = require('express-async-handler');
 const {
   createTestimonialUser,
   findAllTestimonials,
-  createTestimonialAdmin, findByIdTestimonial, updateTestimonial, deleteTestimonial,
+  createTestimonialAdmin,
+  findByIdTestimonial,
+  updateTestimonialUser,
+  deleteTestimonial,
+  updateTestimonialAdmin,
 } = require('../services/testimonials');
 
 const createNewTestimonialUser = asyncHandler(async (req, res) => {
@@ -45,10 +49,20 @@ const findById = asyncHandler(async (req, res) => {
   });
 });
 
-const updateTestimonialHandler = asyncHandler(async (req, res) => {
+const updateTestimonialHandlerUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { id: userId } = req.user;
+  await updateTestimonialUser(id, userId, req.body);
+  res.status(200).json({
+    status: 'success',
+    message: `Testimonial with id ${id} updated`,
+  });
+});
+
+const updateTestimonialHandlerAdmin = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { role } = req.user;
-  await updateTestimonial(id, role, req.body);
+  await updateTestimonialAdmin(id, role, req.body);
   res.status(200).json({
     status: 'success',
     message: `Testimonial with id ${id} updated`,
@@ -70,6 +84,7 @@ module.exports = {
   createNewTestimonialAdmin,
   findAll,
   findById,
-  updateTestimonialHandler,
+  updateTestimonialHandlerAdmin,
+  updateTestimonialHandlerUser,
   deleteTestimonialHandler,
 };

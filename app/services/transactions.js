@@ -448,13 +448,12 @@ const updateTransaction = async (userId, transactionId, transactionData) => {
 
   const {
     startDate, totalCar, totalBike, payment,
-    rentalDuration, carId, bikeId,
+    rentalDuration, carId, bikeId, status = 'waiting',
   } = transactionData;
 
   const convertDate = new Date(startDate);
   const durationInMilliseconds = rentalDuration * 24 * 60 * 60 * 1000;
   const endDate = new Date(convertDate.getTime() + durationInMilliseconds);
-  const status = 'Pending';
   let totalAmountCar = 0;
   let totalAmountBike = 0;
   let priceCar = 0;

@@ -2,7 +2,12 @@ const asyncHandler = require('express-async-handler');
 const {
   createUser,
   findAllUser,
-  findUserById, findUserByEmail, updateUser, updateUserProfile, deleteUser, findLenghtUsers,
+  findUserById,
+  findUserByEmail,
+  updateUser,
+  updateUserProfile,
+  deleteUser,
+  findLenghtUsers, updateNewPasswordByUser, deleteUserByUser,
 } = require('../services/users');
 const AuthenticationError = require('../exeptions/AuthenticationError');
 
@@ -49,8 +54,7 @@ const findById = asyncHandler(async (req, res) => {
 });
 
 const findByEmail = asyncHandler(async (req, res) => {
-  const { email } = req.params;
-  console.log(email);
+  const { email } = req.body;
   const user = await findUserByEmail(email);
   res.status(200).json({
     status: 'success',
@@ -111,18 +115,26 @@ const updateUserHandler = asyncHandler(async (req, res) => {
 const updateUserProfileHandler = asyncHandler(async (req, res) => {
   const { id } = req.user;
   const {
-    name, email, address, phoneNumber, profilePicture,
+    name, address, phoneNumber, profilePicture, coverPicture,
   } = req.body;
   await updateUserProfile(id, {
     name,
-    email,
     address,
     phoneNumber,
     profilePicture,
+    coverPicture,
   });
   res.status(200).json({
     status: 'success',
     message: 'User profile updated',
+  });
+});
+
+const updateNewPasswordByUserHandler = asyncHandler(async (req, res) => {
+  await updateNewPasswordByUser(req.body);
+  res.status(200).json({
+    status: 'success',
+    message: 'Password has been Updated',
   });
 });
 
@@ -136,6 +148,15 @@ const deleteUserHandler = asyncHandler(async (req, res) => {
   });
 });
 
+const deleteUserByUserHandler = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  await deleteUserByUser(id);
+  res.status(200).json({
+    status: 'success',
+    message: `User deleted successfully with id : ${id}`,
+  });
+});
+
 module.exports = {
   findAllLenghtUsers,
   createNewUser,
@@ -145,5 +166,7 @@ module.exports = {
   getUserProfile,
   updateUserHandler,
   updateUserProfileHandler,
+  updateNewPasswordByUserHandler,
   deleteUserHandler,
+  deleteUserByUserHandler,
 };

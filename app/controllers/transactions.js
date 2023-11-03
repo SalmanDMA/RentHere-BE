@@ -104,6 +104,7 @@ const findByIdByUser = asyncHandler(async (req, res) => {
 
 const updateTransactionByUserHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  console.log(id);
   const { id: userId } = req.user;
   await updateTransaction(userId, id, req.body);
   res.status(200).json({

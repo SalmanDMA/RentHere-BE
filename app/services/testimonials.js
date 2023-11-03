@@ -9,7 +9,6 @@ const {
 
 const createTestimonialUser = async (userId, data) => {
   const carId = data.carId ? data.carId : null;
-
   const bikeId = data.bikeId ? data.bikeId : null;
 
   const existingTestimonial = await Testimonials.findOne({
@@ -29,14 +28,15 @@ const createTestimonialUser = async (userId, data) => {
   }
 
   const {
-    testimonial, ratingBike, ratingCar,
+    ratingBike, ratingCar, carTestimonial, bikeTestimonial,
   } = data;
 
   const testimonialData = {
     userId,
     carId,
     bikeId,
-    testimonial,
+    carTestimonial,
+    bikeTestimonial,
     rating_bike: ratingBike,
     rating_car: ratingCar,
   };
@@ -55,15 +55,32 @@ const createTestimonialAdmin = async (userRole, data) => {
     throw new AuthorizationError('You must be an admin, not a user');
   }
 
+  const existingTestimonial = await Testimonials.findOne({
+    where: {
+      userId: data.userId,
+      carId: data.carId,
+      bikeId: data.bikeId,
+    },
+  });
+
+  if (existingTestimonial) {
+    if (existingTestimonial.carId === data.carId) {
+      throw new InvariantError(`Testimonial with car id ${data.carId} already exists`);
+    } else if (existingTestimonial.bikeId === data.bikeId) {
+      throw new InvariantError(`Testimonial with bike id ${data.bikeId} already exists`);
+    }
+  }
+
   const {
-    testimonial, ratingBike, ratingCar, userId,
+    ratingBike, ratingCar, carTestimonial, bikeTestimonial, userId,
   } = data;
 
   const testimonialData = {
     userId,
     carId,
     bikeId,
-    testimonial,
+    carTestimonial,
+    bikeTestimonial,
     rating_bike: ratingBike,
     rating_car: ratingCar,
   };
@@ -176,7 +193,51 @@ const findByIdTestimonial = async (id, userRole) => {
   return testimonialData;
 };
 
-const updateTestimonial = async (id, userRole, data) => {
+const updateTestimonialUser = async (id, userId, data) => {
+  const existingTestimonial = await Testimonials.findOne({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!existingTestimonial) {
+    throw new NotFoundError(`Testimonial dengan id '${id}' tidak ditemukan`);
+  }
+
+  const {
+    carTestimonial, bikeTestimonial, ratingBike, ratingCar, carId, bikeId,
+  } = data;
+
+  if (carTestimonial) {
+    existingTestimonial.carTestimonial = carTestimonial;
+  }
+
+  if (bikeTestimonial) {
+    existingTestimonial.bikeTestimonial = bikeTestimonial;
+  }
+
+  if (ratingBike) {
+    existingTestimonial.rating_bike = ratingBike;
+  }
+
+  if (ratingCar) {
+    existingTestimonial.rating_car = ratingCar;
+  }
+
+  if (carId) {
+    existingTestimonial.carId = carId;
+  }
+
+  if (bikeId) {
+    existingTestimonial.bikeId = bikeId;
+  }
+
+  await existingTestimonial.save();
+  return existingTestimonial;
+};
+
+const updateTestimonialAdmin = async (id, userRole, data) => {
   if (userRole !== 'ADMIN') {
     throw new AuthorizationError('You must be an admin, not a user');
   }
@@ -192,11 +253,15 @@ const updateTestimonial = async (id, userRole, data) => {
   }
 
   const {
-    testimonial, ratingBike, ratingCar, carId, bikeId,
+    carTestimonial, bikeTestimonial, ratingBike, ratingCar, carId, bikeId,
   } = data;
 
-  if (testimonial) {
-    existingTestimonial.testimonial = testimonial;
+  if (carTestimonial) {
+    existingTestimonial.carTestimonial = carTestimonial;
+  }
+
+  if (bikeTestimonial) {
+    existingTestimonial.bikeTestimonial = bikeTestimonial;
   }
 
   if (ratingBike) {
@@ -243,6 +308,7 @@ module.exports = {
   createTestimonialAdmin,
   findAllTestimonials,
   findByIdTestimonial,
-  updateTestimonial,
+  updateTestimonialUser,
+  updateTestimonialAdmin,
   deleteTestimonial,
 };

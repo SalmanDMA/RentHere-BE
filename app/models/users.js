@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Users.hasMany(models.Testimonials, { foreignKey: 'userId' });
       Users.hasMany(models.Transactions, { foreignKey: 'userId' });
+      Users.hasMany(models.Wishlist, { foreignKey: 'userId' });
     }
   }
   Users.init({
@@ -22,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     address: DataTypes.STRING,
     phoneNumber: DataTypes.STRING,
     profilePicture: DataTypes.STRING,
+    coverPicture: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Users',

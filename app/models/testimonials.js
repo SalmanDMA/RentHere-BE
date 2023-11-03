@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     carId: DataTypes.INTEGER,
     bikeId: DataTypes.INTEGER,
-    testimonial: DataTypes.TEXT,
+    carTestimonial: DataTypes.TEXT,
+    bikeTestimonial: DataTypes.TEXT,
     rating_bike: DataTypes.FLOAT,
     rating_car: DataTypes.FLOAT,
   }, {
